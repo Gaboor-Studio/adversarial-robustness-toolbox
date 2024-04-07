@@ -38,7 +38,7 @@ from art.attacks.evasion.projected_gradient_descent.projected_gradient_descent_n
     ProjectedGradientDescentNumpy,
 )
 from art.attacks.evasion.projected_gradient_descent.projected_gradient_descent_pytorch import (
-    ProjectedGradientDescentPyTorch,
+    ProjectedGradientDescentPyTorch, ProjectedGradientDescentCustom
 )
 from art.attacks.evasion.projected_gradient_descent.projected_gradient_descent_tensorflow_v2 import (
     ProjectedGradientDescentTensorFlowV2,
@@ -90,6 +90,7 @@ class ProjectedGradientDescent(EvasionAttack):
         random_eps: bool = False,
         summary_writer: Union[str, bool, SummaryWriter] = False,
         verbose: bool = True,
+        custom: bool = True,
     ):
         """
         Create a :class:`.ProjectedGradientDescent` instance.
@@ -131,10 +132,26 @@ class ProjectedGradientDescent(EvasionAttack):
         ProjectedGradientDescent._check_params(self)
 
         self._attack: Union[
-            ProjectedGradientDescentPyTorch, ProjectedGradientDescentTensorFlowV2, ProjectedGradientDescentNumpy
+            ProjectedGradientDescentPyTorch, ProjectedGradientDescentTensorFlowV2, ProjectedGradientDescentNumpy, ProjectedGradientDescentCustom
         ]
         if isinstance(self.estimator, PyTorchClassifier) and self.estimator.all_framework_preprocessing:
-            self._attack = ProjectedGradientDescentPyTorch(
+            if custom:
+                self._attack = ProjectedGradientDescentPyTorch(
+                    estimator=estimator,  # type: ignore
+                    norm=norm,
+                    eps=eps,
+                    eps_step=eps_step,
+                    decay=decay,
+                    max_iter=max_iter,
+                    targeted=targeted,
+                    num_random_init=num_random_init,
+                    batch_size=batch_size,
+                    random_eps=random_eps,
+                    summary_writer=summary_writer,
+                    verbose=verbose,
+                )
+            else:
+                self._attack = ProjectedGradientDescentCustom(
                 estimator=estimator,  # type: ignore
                 norm=norm,
                 eps=eps,
@@ -147,7 +164,8 @@ class ProjectedGradientDescent(EvasionAttack):
                 random_eps=random_eps,
                 summary_writer=summary_writer,
                 verbose=verbose,
-            )
+                )
+        
 
         elif isinstance(self.estimator, TensorFlowV2Classifier) and self.estimator.all_framework_preprocessing:
             self._attack = ProjectedGradientDescentTensorFlowV2(

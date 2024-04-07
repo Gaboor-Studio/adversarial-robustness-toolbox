@@ -218,6 +218,12 @@ Projected Gradient Descent (PGD) - PyTorch
    :members:
    :special-members:
 
+Projected Gradient Descent (PGD) - Custom
+------------------------------------------
+.. autoclass:: ProjectedGradientDescentCustom
+   :members:
+   :special-members:
+
 Projected Gradient Descent (PGD) - TensorFlowV2
 -----------------------------------------------
 .. autoclass:: ProjectedGradientDescentTensorFlowV2
